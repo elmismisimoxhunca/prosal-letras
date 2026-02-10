@@ -1,0 +1,69 @@
+---
+import { getPosts } from '../lib/ghost';
+import Layout from '../layouts/Layout.astro';
+import PostCard from '../components/PostCard.astro';
+
+const posts = await getPosts();
+const recentPosts = posts.slice(0, 10);
+---
+
+<Layout title="Blog - Astro + Ghost">
+  <main>
+    <section class="hero">
+      <h1>Welcome to Our Blog</h1>
+      <p>Powered by Ghost CMS and Astro</p>
+    </section>
+
+    <section class="posts-grid">
+      <h2>Latest Articles</h2>
+      {recentPosts.length > 0 ? (
+        <div class="grid">
+          {recentPosts.map((post) => (
+            <PostCard post={post} />
+          ))}
+        </div>
+      ) : (
+        <p>No posts available yet. Create your first post in Ghost!</p>
+      )}
+    </section>
+  </main>
+</Layout>
+
+<style>
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 8px;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .hero p {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+
+  .posts-grid h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: #333;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+</style>

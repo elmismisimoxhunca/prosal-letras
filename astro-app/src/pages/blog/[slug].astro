@@ -1,0 +1,181 @@
+---
+import { getPosts, getPostBySlug } from '../../lib/ghost';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { slug } = Astro.params;
+const post = await getPostBySlug(slug!);
+
+if (!post) {
+  return Astro.redirect('/');
+}
+---
+
+<Layout title={post.title}>
+  <article class="post">
+    <header class="post-header">
+      <h1>{post.title}</h1>
+      <div class="meta">
+        <time datetime={post.published_at}>
+          {new Date(post.published_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </time>
+        {post.authors && post.authors.length > 0 && (
+          <span class="authors">
+            by {post.authors.map((a) => a.name).join(', ')}
+          </span>
+        )}
+      </div>
+    </header>
+
+    {post.feature_image && (
+      <img src={post.feature_image} alt={post.title} class="feature-image" />
+    )}
+
+    <div class="content" set:html={post.html} />
+
+    {post.tags && post.tags.length > 0 && (
+      <footer class="post-footer">
+        <div class="tags">
+          {post.tags.map((tag) => (
+            <a href={`/categories/${tag.slug}`} class="tag">
+              {tag.name}
+            </a>
+          ))}
+        </div>
+      </footer>
+    )}
+  </article>
+
+  <nav class="back-link">
+    <a href="/">← Back to Blog</a>
+  </nav>
+</Layout>
+
+<style>
+  .post {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .post-header {
+    margin-bottom: 2rem;
+  }
+
+  .post-header h1 {
+    font-size: 2.5rem;
+    margin: 0 0 1rem 0;
+    color: #333;
+  }
+
+  .meta {
+    display: flex;
+    gap: 1rem;
+    color: #666;
+    font-size: 0.95rem;
+  }
+
+  .feature-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
+
+  .content {
+    line-height: 1.8;
+    color: #444;
+    font-size: 1.05rem;
+  }
+
+  .content :global(p) {
+    margin-bottom: 1.5rem;
+  }
+
+  .content :global(h2) {
+    font-size: 1.8rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+
+  .content :global(h3) {
+    font-size: 1.4rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    color: #333;
+  }
+
+  .content :global(ul),
+  .content :global(ol) {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+  }
+
+  .content :global(li) {
+    margin-bottom: 0.5rem;
+  }
+
+  .content :global(blockquote) {
+    border-left: 4px solid #667eea;
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    color: #666;
+    font-style: italic;
+  }
+
+  .post-footer {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #f0f0f0;
+    color: #667eea;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+  }
+
+  .tag:hover {
+    background: #e0e0e0;
+  }
+
+  .back-link {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+  }
+
+  .back-link a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .back-link a:hover {
+    text-decoration: underline;
+  }
+</style>

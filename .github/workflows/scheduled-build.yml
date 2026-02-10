@@ -1,0 +1,35 @@
+name: Scheduled Daily Build
+
+on:
+  schedule:
+    # Run at 3 AM UTC (6 AM Chile time UTC-3)
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        working-directory: ./astro-app
+        run: npm ci
+
+      - name: Build Astro site
+        working-directory: ./astro-app
+        env:
+          GHOST_URL: ${{ secrets.GHOST_URL }}
+          GHOST_CONTENT_API_KEY: ${{ secrets.GHOST_CONTENT_API_KEY }}
+        run: npm run build
+
+      - name: Deploy to hosting
+        # Add your deployment command here
+        # Example for Netlify:
+        # run: npx netlify-cli deploy --prod --dir=./astro-app/dist
+        run: echo "Configure your deployment in this step"

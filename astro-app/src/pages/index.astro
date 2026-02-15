@@ -1,69 +1,1270 @@
 ---
-import { getPosts } from '../lib/ghost';
+import { getPosts, getPostsByTag } from '../lib/ghost';
 import Layout from '../layouts/Layout.astro';
 import PostCard from '../components/PostCard.astro';
 
-const posts = await getPosts();
-const recentPosts = posts.slice(0, 10);
+// Fetch all posts and filter by internal Ghost tags
+// Tags prefixed with # are "internal" in Ghost (hidden from public)
+// Create posts in Ghost with these tags to manage each section:
+//   #columna   → Columnas section
+//   #evento    → Eventos section
+//   #revista   → Revista editions
+//   #servicio  → Servicios section
+
+const allPosts = await getPosts();
+
+// Filter posts by tag — Ghost internal tags use "hash-" prefix in slug
+const columnas = allPosts.filter(p => p.tags?.some(t => t.slug === 'hash-columna'));
+const eventosGhost = allPosts.filter(p => p.tags?.some(t => t.slug === 'hash-evento'));
+const revistasGhost = allPosts.filter(p => p.tags?.some(t => t.slug === 'hash-revista'));
+const serviciosGhost = allPosts.filter(p => p.tags?.some(t => t.slug === 'hash-servicio'));
+
+// If no tagged columnas exist, show all posts as columnas (backwards compatible)
+const columnasToShow = columnas.length > 0 ? columnas.slice(0, 6) : allPosts.slice(0, 6);
+
+// Hardcoded principios (rarely change — foundational content)
+const principios = [
+  {
+    titulo: "Territorio como fuente de cultura",
+    texto: "Creemos que en nuestras herencias y nuestro territorio hay cultura que se expresa a partir de lo que escribimos, de lo que manifestamos en la lectura y la escritura, lo que narramos y leemos."
+  },
+  {
+    titulo: "Feminismo",
+    texto: "Creemos en un escenario literario chileno en que las asimetrías de género se vayan deconstruyendo para lograr la visibilidad de todas las personas por igual."
+  },
+  {
+    titulo: "Democratización de la Información",
+    texto: "Creemos que el conocimiento sobre literatura, escritura, lectura y mundo editorial chileno, debería estar al alcance de todas las personas cuyos corazones mueva."
+  },
+  {
+    titulo: "Valorización social de la lectura",
+    texto: "Creemos que la lectura y el libro son un lugar de encuentro personal y comunitario, pues es en el (re)pensar lo leído que descubrimos aspectos sobre nuestra identidad."
+  },
+  {
+    titulo: "Participación ciudadana",
+    texto: "Creemos fervientemente que la lectura y la escritura son elementos de la sociedad y el ser humano que pueden potenciar la participación ciudadana."
+  },
+  {
+    titulo: "Articulación institucional",
+    texto: "Creemos en una Región de Valparaíso cuyo mundo literario y editorial pueda encontrarse articulado para ofrecer un servicio situado y conocedor de las necesidades comunitarias."
+  },
+  {
+    titulo: "Diversidad e Inclusión",
+    texto: "Creemos en un encuentro en la palabra que trasciende los procesos de estigmatización social y que encuentre en la literatura un espacio seguro y de igualdad."
+  }
+];
+
+// Hardcoded equipo (rarely changes)
+const equipo = [
+  {
+    nombre: "Joaquín Vera Sepúlveda",
+    foto: "/images/equipo/JOAQUÍN.jpeg",
+    rol: "Cofundador · Escritor y Gestor Cultural",
+    bio: "Escritor chileno nacido en Concepción (2001), residente de Viña del Mar. Ha publicado las novelas \"Caída Silenciosa\" (2020), \"Almendro Crisantemo\" (2023) y \"Crónica de un depredador crónico\" (2025), además del poemario \"Vida y Muerte de nuestra Historia de Amor\" (2024). Inicia en 2025 su trayectoria como gestor cultural, coordinando conversatorios literarios en la Región de Valparaíso y la Región Metropolitana, co-fundando PROSAL.",
+    instagram: "joaquinvera21_"
+  },
+  {
+    nombre: "Constanza Moralera Aguirre",
+    foto: "/images/equipo/CONSTANZA.jpeg",
+    rol: "Cofundadora · Autora y Promotora de Lectura",
+    bio: "Autora nacida en Viña del Mar (2001), estudiante de Educación Parvularia en la PUCV. Desde niña demostró un amor por las letras que la llevó a promover la lectura nacional en redes sociales y a impulsar diversas iniciativas en torno a la literatura chilena. \"Los asesinos de Elisa\" es su primer libro (Ediciones Fercé, 2025), donde relata las injusticias sociales que viven las mujeres día a día.",
+    instagram: ""
+  },
+  {
+    nombre: "Ignacia Muñoz Pérez",
+    foto: "/images/equipo/IGNACIA.jpeg",
+    rol: "Cofundadora · Periodista y Gestora Cultural",
+    bio: "Periodista de profesión y lectora empedernida desde la infancia. Su trabajo se desarrolla en el cruce entre la escritura, las comunicaciones y la gestión cultural. Diplomada en inclusión, concibe la literatura como un espacio diverso, respetuoso e inclusivo. A través de la creación de contenido cultural, ha colaborado con numerosas autoras y autores nacionales, aportando a la visibilización de la literatura chilena.",
+    instagram: "busca.palabras_"
+  }
+];
+
+// Noticias (slider content)
+const noticias = [
+  {
+    titulo: "\"El Jardín de las Letras\": Un encuentro literario en el Palacio Rioja",
+    resumen: "PROSAL inauguró un ciclo de conversatorios literarios en el Palacio Rioja de Viña del Mar, reuniendo a autorías locales y comunidad lectora en un espacio patrimonial.",
+    imagen: "/images/noticias/noticia-1-1.jpg"
+  },
+  {
+    titulo: "Conversatorio literario en la Biblioteca Paul Harris de Villa Alemana",
+    resumen: "Un encuentro dedicado a la fantasía, la imaginación y las narrativas gráficas en colaboración con la Biblioteca Pública Municipal.",
+    imagen: "/images/noticias/noticia-2-1.jpg"
+  },
+  {
+    titulo: "\"Poesía y Política\": Reflexiones desde la palabra poética",
+    resumen: "Un conversatorio que exploró los vínculos entre poesía y política, reafirmando la palabra poética como espacio de pensamiento crítico.",
+    imagen: "/images/noticias/noticia-3-1.jpg"
+  },
+  {
+    titulo: "\"Narrativas con Orgullo\": Conversatorio por el Mes del Orgullo",
+    resumen: "En colaboración con Leon's Books, PROSAL reunió a autorías chilenas para reflexionar sobre la diversidad sexual y de género en la literatura.",
+    imagen: "/images/noticias/noticia-4-1.jpg"
+  },
+  {
+    titulo: "\"Líricas Patrimoniales\" en la Biblioteca Santiago Severín",
+    resumen: "Destacadas voces de la poesía regional se reunieron en la Biblioteca Pública de Valparaíso para un encuentro marcado por la reflexión y la emoción.",
+    imagen: "/images/noticias/noticia-5-1.jpg"
+  },
+  {
+    titulo: "¡Celebramos el Día de la Niñez con literatura!",
+    resumen: "Familias completas participaron de una experiencia cultural pensada para acompañar el crecimiento lector desde la primera infancia.",
+    imagen: "/images/noticias/noticia-6-1.jpg"
+  }
+];
+
+// Fallback servicios (used when no #servicio posts exist in Ghost)
+const serviciosFallback = [
+  {
+    icono: "🎤",
+    titulo: "Conversatorios literarios",
+    texto: "Creamos y gestionamos espacios de encuentro en torno a la literatura, fortaleciendo la unión comunitaria y acercando a las autorías a sus lectoras y lectores.",
+    slug: "conversatorios-literarios"
+  },
+  {
+    icono: "📝",
+    titulo: "Talleres de escritura",
+    texto: "Diseñamos talleres formativos que acompañan el recorrido de la escritura, desde las primeras ideas hasta la circulación del libro.",
+    slug: "talleres-escritura"
+  },
+  {
+    icono: "�",
+    titulo: "Lanzamientos de libros",
+    texto: "Servicio integral de organización de lanzamientos en distintos puntos de la Región de Valparaíso.",
+    slug: "lanzamientos-libros"
+  },
+  {
+    icono: "🤝",
+    titulo: "Orientación y acompañamiento",
+    texto: "Respondemos de manera gratuita las preguntas que puedan surgir en tu camino literario.",
+    slug: "orientacion-acompanamiento"
+  }
+];
 ---
 
-<Layout title="Blog - Astro + Ghost">
+<Layout title="PROSAL — Proyecto Regional para la Organización Social de Autorías Literarias">
   <main>
-    <section class="hero">
-      <h1>Welcome to Our Blog</h1>
-      <p>Powered by Ghost CMS and Astro</p>
+
+    <!-- HERO / INICIO -->
+    <section class="hero" id="inicio">
+      <div class="hero-overlay">
+        <div class="container hero-content">
+          <p class="hero-tag">Región de Valparaíso, Chile</p>
+          <h1 class="serif">PROSAL</h1>
+          <p class="hero-subtitle">Proyecto Regional para la Organización Social de Autorías Literarias</p>
+          <div class="hero-divider"></div>
+          <p class="hero-desc">Fomentamos la Lectura y la Escritura como elementos fundamentales de la cultura chilena desde una perspectiva situada y territorial.</p>
+          <div class="hero-actions">
+            <a href="#sobre-prosal" class="btn btn-white">Conócenos</a>
+            <a href="#contacto" class="btn btn-outline">Contáctanos</a>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="posts-grid">
-      <h2>Latest Articles</h2>
-      {recentPosts.length > 0 ? (
-        <div class="grid">
-          {recentPosts.map((post) => (
-            <PostCard post={post} />
+    <!-- MISIÓN Y VISIÓN -->
+    <section class="mision-vision" id="sobre-prosal">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Sobre Prosal</h2>
+          <div class="divider"></div>
+        </div>
+        <div class="mv-grid">
+          <div class="mv-card">
+            <h3 class="serif">Misión</h3>
+            <p>Promover la Literatura chilena desde el acompañamiento a las trayectorias literarias individuales y comunitarias a partir de la gestión y coordinación de instancias culturales para el Fomento de la Lectoescritura en las distintas comunas de la Región de Valparaíso, conforme a los 8 principios de la Ley 21045, Artículo 1, que crea el Ministerio de la Cultura, las Artes y el Patrimonio.</p>
+          </div>
+          <div class="mv-card">
+            <h3 class="serif">Visión</h3>
+            <p>Consolidarnos como una organización literaria que sea un referente regional en el acompañamiento, la visibilización y la profesionalización del trabajo autoral en Chile, generando redes, contenidos y espacios de circulación que dignifiquen y amplifiquen las voces locales.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DECLARACIÓN DE PRINCIPIOS -->
+    <section class="principios" id="principios">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Declaración de Principios</h2>
+          <div class="divider"></div>
+          <p class="section-subtitle">Los valores que guían nuestro trabajo por la cultura y las letras en la Región de Valparaíso.</p>
+        </div>
+        <div class="principios-top">
+          {principios.slice(0, 3).map((p, i) => (
+            <div class="principio-card">
+              <span class="principio-num">{String(i + 1).padStart(2, '0')}</span>
+              <h4>{p.titulo}</h4>
+              <p>{p.texto}</p>
+            </div>
           ))}
         </div>
-      ) : (
-        <p>No posts available yet. Create your first post in Ghost!</p>
-      )}
+        <div class="principios-bottom">
+          {principios.slice(3).map((p, i) => (
+            <div class="principio-card">
+              <span class="principio-num">{String(i + 4).padStart(2, '0')}</span>
+              <h4>{p.titulo}</h4>
+              <p>{p.texto}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
+
+    <!-- COLUMNAS (Ghost posts) -->
+    <section class="columnas" id="columnas">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Columnas</h2>
+          <div class="divider"></div>
+          <p class="section-subtitle">Reflexiones, análisis y opiniones sobre el mundo literario y cultural.</p>
+        </div>
+        {columnasToShow.length > 0 ? (
+          <div class="columnas-grid">
+            {columnasToShow.map((post) => (
+              <PostCard post={post} />
+            ))}
+          </div>
+        ) : (
+          <p class="empty-state">Próximamente publicaremos nuestras primeras columnas. ¡Mantente atento!</p>
+        )}
+        <div class="section-cta">
+          <a href="/columnas" class="btn btn-outline-dark">Ver todas las columnas →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- REVISTA (Ghost: tag #revista | feature_image = portada, excerpt = descripción) -->
+    <section class="revista" id="revista">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Revista PROSAL</h2>
+          <div class="divider"></div>
+          <p class="section-subtitle">Descarga las ediciones de nuestra revista literaria.</p>
+        </div>
+        <div class="revista-grid">
+          {revistasGhost.length > 0 ? (
+            revistasGhost.map((rev, i) => (
+              <div class="revista-card">
+                {rev.feature_image ? (
+                  <div class="revista-cover revista-cover-img">
+                    <img src={rev.feature_image} alt={rev.title} />
+                  </div>
+                ) : (
+                  <div class="revista-cover">
+                    <span class="revista-num serif">{String(i + 1).padStart(2, '0')}</span>
+                  </div>
+                )}
+                <h4>{rev.title}</h4>
+                <p>{rev.excerpt}</p>
+                <a href={`/blog/${rev.slug}`} class="btn btn-dark btn-sm">Leer más</a>
+              </div>
+            ))
+          ) : (
+            <div class="revista-card">
+              <div class="revista-cover">
+                <span class="revista-num serif">01</span>
+              </div>
+              <h4>Edición N°1</h4>
+              <p>Primera edición de la Revista PROSAL</p>
+              <a href="#" class="btn btn-dark btn-sm">Próximamente</a>
+            </div>
+          )}
+        </div>
+        <div class="section-cta">
+          <a href="/revista" class="btn btn-outline-dark">Ver todas las ediciones →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICIOS (Ghost: tag #servicio | feature_image optional, excerpt = descripción) -->
+    <section class="servicios" id="servicios">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">¿Qué puede hacer Prosal por ti?</h2>
+          <div class="divider"></div>
+          <p class="section-subtitle">Acompañamos a autores y comunidades en su camino literario.</p>
+        </div>
+        <div class="servicios-grid">
+          {serviciosGhost.length > 0 ? (
+            serviciosGhost.map((s) => (
+              <div class="servicio-card">
+                {s.feature_image && (
+                  <div class="servicio-img">
+                    <img src={s.feature_image} alt={s.title} />
+                  </div>
+                )}
+                <h4>{s.title}</h4>
+                <p>{s.excerpt}</p>
+              </div>
+            ))
+          ) : (
+            serviciosFallback.map((s) => (
+              <a href={`/servicios/${s.slug}`} class="servicio-card servicio-card-link">
+                <span class="servicio-icon">{s.icono}</span>
+                <h4>{s.titulo}</h4>
+                <p>{s.texto}</p>
+              </a>
+            ))
+          )}
+        </div>
+        <div class="section-cta">
+          <a href="/servicios" class="btn btn-outline-dark">Conoce todos nuestros servicios →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVENTOS (Ghost: tag #evento | feature_image optional, excerpt = descripción breve) -->
+    <section class="eventos" id="eventos">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Eventos</h2>
+          <div class="divider"></div>
+          <p class="section-subtitle">Actividades pasadas y futuras de PROSAL en la Región de Valparaíso.</p>
+        </div>
+        <div class="eventos-list">
+          {eventosGhost.length > 0 ? (
+            eventosGhost.map((ev) => (
+              <div class="evento-card">
+                <div class="evento-date">
+                  <span class="evento-day">{new Date(ev.published_at).getDate()}</span>
+                  <span class="evento-month">{new Date(ev.published_at).toLocaleDateString('es-CL', { month: 'short' }).toUpperCase()}</span>
+                </div>
+                <div class="evento-info">
+                  <h4><a href={`/blog/${ev.slug}`}>{ev.title}</a></h4>
+                  <p>{ev.excerpt}</p>
+                </div>
+                {ev.feature_image && (
+                  <div class="evento-img">
+                    <img src={ev.feature_image} alt={ev.title} />
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div class="evento-card">
+              <div class="evento-date">
+                <span class="evento-month">PROX</span>
+              </div>
+              <div class="evento-info">
+                <h4>Próximos eventos</h4>
+                <p>Estamos preparando nuevas actividades. Síguenos en Instagram <a href="https://instagram.com/prosal.letras" target="_blank" rel="noopener">@prosal.letras</a> para enterarte primero.</p>
+              </div>
+            </div>
+          )}
+        </div>
+        <div class="section-cta">
+          <a href="/eventos" class="btn btn-outline-dark">Ver todos los eventos →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOTICIAS / SLIDER -->
+    <section class="noticias" id="noticias">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Noticias</h2>
+          <div class="divider"></div>
+          <p class="section-subtitle">Lo que hemos hecho y lo que viene en PROSAL.</p>
+        </div>
+        <div class="slider-wrapper">
+          <button class="slider-btn slider-prev" aria-label="Anterior">&#8249;</button>
+          <div class="slider-track">
+            {noticias.map((n, i) => (
+              <div class={`slider-slide ${i === 0 ? 'active' : ''}`}>
+                <div class="slide-img">
+                  <img src={n.imagen} alt={n.titulo} loading="lazy" />
+                </div>
+                <div class="slide-content">
+                  <h3>{n.titulo}</h3>
+                  <p>{n.resumen}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <button class="slider-btn slider-next" aria-label="Siguiente">&#8250;</button>
+        </div>
+        <div class="slider-dots">
+          {noticias.map((_, i) => (
+            <button class={`slider-dot ${i === 0 ? 'active' : ''}`} data-index={i} aria-label={`Noticia ${i + 1}`}></button>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- NUESTRO EQUIPO -->
+    <section class="equipo" id="equipo">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Nuestro Equipo</h2>
+          <div class="divider"></div>
+          <p class="section-subtitle">Las personas detrás de PROSAL.</p>
+        </div>
+        <div class="equipo-grid">
+          {equipo.map((m) => (
+            <div class="equipo-card">
+              <div class="equipo-foto">
+                <img src={m.foto} alt={m.nombre} loading="lazy" />
+              </div>
+              <div class="equipo-info">
+                <h4>{m.nombre}</h4>
+                <p class="equipo-rol">{m.rol}</p>
+                <p class="equipo-bio">{m.bio}</p>
+                {m.instagram && (
+                  <a href={`https://instagram.com/${m.instagram}`} target="_blank" rel="noopener" class="equipo-ig">@{m.instagram}</a>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACTO -->
+    <section class="contacto" id="contacto">
+      <div class="container">
+        <div class="contacto-wrapper">
+          <div class="contacto-info">
+            <h2 class="section-title">Contacto</h2>
+            <div class="divider" style="margin: 1rem 0;"></div>
+            <p>¿Tienes preguntas sobre publicación, escritura o quieres colaborar con nosotros? Escríbenos y te responderemos a la brevedad.</p>
+            <ul class="contacto-datos">
+              <li>
+                <strong>Correo:</strong>
+                <a href="mailto:prosal@contacto.cl">prosal@contacto.cl</a>
+              </li>
+              <li>
+                <strong>Instagram:</strong>
+                <a href="https://instagram.com/prosal.letras" target="_blank" rel="noopener">@prosal.letras</a>
+              </li>
+            </ul>
+          </div>
+          <form class="contacto-form" action="#" method="POST">
+            <div class="form-group">
+              <label for="nombre">Nombre</label>
+              <input type="text" id="nombre" name="nombre" required />
+            </div>
+            <div class="form-group">
+              <label for="email">Correo electrónico</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+            <div class="form-group">
+              <label for="asunto">Asunto</label>
+              <input type="text" id="asunto" name="asunto" required />
+            </div>
+            <div class="form-group">
+              <label for="mensaje">Mensaje</label>
+              <textarea id="mensaje" name="mensaje" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-dark">Enviar mensaje</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
   </main>
 </Layout>
 
 <style>
-  main {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
+  /* HERO */
+  .hero {
+    background: #1a1a1a;
+    color: #ffffff;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    position: relative;
   }
 
-  .hero {
+  .hero-overlay {
+    width: 100%;
+    padding: 6rem 0;
+  }
+
+  .hero-content {
     text-align: center;
-    margin-bottom: 3rem;
-    padding: 2rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 8px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .hero-tag {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #999;
+    margin-bottom: 1.5rem;
   }
 
   .hero h1 {
-    font-size: 2.5rem;
-    margin: 0 0 0.5rem 0;
+    font-size: 5rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.5rem;
+    line-height: 1;
   }
 
-  .hero p {
-    font-size: 1.2rem;
-    margin: 0;
-  }
-
-  .posts-grid h2 {
-    font-size: 2rem;
+  .hero-subtitle {
+    font-size: 1.1rem;
+    color: #aaa;
+    font-weight: 300;
     margin-bottom: 2rem;
-    color: #333;
   }
 
-  .grid {
+  .hero-divider {
+    width: 60px;
+    height: 2px;
+    background: #fff;
+    margin: 0 auto 2rem;
+  }
+
+  .hero-desc {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: #ccc;
+    max-width: 650px;
+    margin: 0 auto 2.5rem;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 0.85rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-decoration: none;
+  }
+
+  .btn-white {
+    background: #fff;
+    color: #1a1a1a;
+    border-color: #fff;
+  }
+
+  .btn-white:hover {
+    background: transparent;
+    color: #fff;
+    opacity: 1;
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: #fff;
+    border-color: #666;
+  }
+
+  .btn-outline:hover {
+    border-color: #fff;
+    opacity: 1;
+  }
+
+  .btn-dark {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+  }
+
+  .btn-dark:hover {
+    background: #333;
+    border-color: #333;
+    opacity: 1;
+  }
+
+  .btn-outline-dark {
+    background: transparent;
+    color: #1a1a1a;
+    border-color: #1a1a1a;
+  }
+
+  .btn-outline-dark:hover {
+    background: #1a1a1a;
+    color: #fff;
+    opacity: 1;
+  }
+
+  .section-cta {
+    text-align: center;
+    margin-top: 2.5rem;
+  }
+
+  .btn-sm {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.8rem;
+  }
+
+  /* MISIÓN Y VISIÓN */
+  .mision-vision {
+    background: #fff;
+  }
+
+  .mv-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+
+  .mv-card {
+    padding: 2.5rem;
+    border: 1px solid #e5e5e5;
+  }
+
+  .mv-card h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+    color: #1a1a1a;
+  }
+
+  .mv-card p {
+    color: #555;
+    line-height: 1.8;
+    font-size: 0.95rem;
+  }
+
+  /* PRINCIPIOS */
+  .principios {
+    background: #f7f7f7;
+  }
+
+  .principios-top {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .principios-bottom {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 2rem;
   }
+
+  .principio-card {
+    background: #fff;
+    padding: 2rem;
+    border: 1px solid #e5e5e5;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .principio-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+
+  .principio-num {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #e5e5e5;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .principio-card h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #1a1a1a;
+  }
+
+  .principio-card p {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  /* COLUMNAS */
+  .columnas {
+    background: #fff;
+  }
+
+  .columnas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: #999;
+    font-size: 1.1rem;
+    padding: 3rem;
+    border: 2px dashed #e5e5e5;
+  }
+
+  /* REVISTA */
+  .revista {
+    background: #f7f7f7;
+  }
+
+  .revista-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    justify-items: center;
+  }
+
+  .revista-card {
+    text-align: center;
+    max-width: 280px;
+  }
+
+  .revista-cover {
+    width: 200px;
+    height: 280px;
+    background: #1a1a1a;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    border: 1px solid #333;
+  }
+
+  .revista-num {
+    font-size: 4rem;
+    font-weight: 700;
+    opacity: 0.3;
+  }
+
+  .revista-card h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .revista-card p {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  /* SERVICIOS */
+  .servicios {
+    background: #fff;
+  }
+
+  .servicios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 2rem;
+  }
+
+  .servicio-card {
+    padding: 2rem;
+    border: 1px solid #e5e5e5;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .servicio-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+
+  .servicio-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .servicio-card-link:hover {
+    opacity: 1;
+  }
+
+  .servicio-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .servicio-card h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .servicio-card p {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .servicio-img {
+    width: 100%;
+    height: 140px;
+    overflow: hidden;
+    margin: -2rem -2rem 1.5rem -2rem;
+    width: calc(100% + 4rem);
+  }
+
+  .servicio-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .revista-cover-img {
+    background: none;
+    border: none;
+  }
+
+  .revista-cover-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* EVENTOS */
+  .eventos {
+    background: #f7f7f7;
+  }
+
+  .eventos-list {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .evento-card {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    align-items: flex-start;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .evento-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+
+  .evento-date {
+    min-width: 80px;
+    text-align: center;
+    padding: 1rem;
+    background: #1a1a1a;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .evento-day {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .evento-month {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .evento-info {
+    flex: 1;
+  }
+
+  .evento-info h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .evento-info h4 a {
+    color: #1a1a1a;
+    text-decoration: none;
+    transition: opacity 0.3s;
+  }
+
+  .evento-info h4 a:hover {
+    opacity: 0.7;
+  }
+
+  .evento-info p {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+
+  .evento-info a {
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
+  .evento-img {
+    width: 120px;
+    height: 80px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .evento-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .noticias {
+    background: #f7f7f7;
+  }
+
+  /* EQUIPO */
+  .equipo {
+    background: #fff;
+  }
+
+  .equipo-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .equipo-card {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  .equipo-foto {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #e5e5e5;
+    flex-shrink: 0;
+  }
+
+  .equipo-foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .equipo-info {
+    padding-top: 0.5rem;
+  }
+
+  .equipo-card h4 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .equipo-rol {
+    color: #888;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 1rem;
+  }
+
+  .equipo-bio {
+    color: #555;
+    font-size: 0.92rem;
+    line-height: 1.8;
+    margin-bottom: 0.75rem;
+  }
+
+  .equipo-ig {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-decoration: underline;
+  }
+
+  /* CONTACTO */
+  .contacto {
+    background: #f7f7f7;
+  }
+
+  .contacto-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .contacto-info p {
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
+
+  .contacto-datos {
+    list-style: none;
+  }
+
+  .contacto-datos li {
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+  }
+
+  .contacto-datos strong {
+    display: inline-block;
+    min-width: 90px;
+  }
+
+  .contacto-datos a {
+    font-weight: 500;
+  }
+
+  .contacto-form {
+    background: #fff;
+    padding: 2.5rem;
+    border: 1px solid #e5e5e5;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: #1a1a1a;
+    background: #fafafa;
+    transition: border-color 0.3s;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #1a1a1a;
+    background: #fff;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+  }
+
+  .contacto-form .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .hero h1 {
+      font-size: 3rem;
+    }
+
+    .hero-desc {
+      font-size: 1rem;
+    }
+
+    .hero-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .mv-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .principios-top,
+    .principios-bottom {
+      grid-template-columns: 1fr;
+    }
+
+    .columnas-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .equipo-card {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .equipo-foto {
+      margin: 0 auto;
+    }
+
+    .contacto-wrapper {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .evento-card {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
 </style>
+
+<style is:global>
+  .slider-wrapper {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slider-track {
+    position: relative;
+  }
+
+  .slider-slide {
+    display: none;
+    gap: 2.5rem;
+    align-items: center;
+  }
+
+  .slider-slide.active {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+  }
+
+  .slide-img {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    border: 1px solid #e5e5e5;
+  }
+
+  .slide-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .slide-content h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    color: #1a1a1a;
+  }
+
+  .slide-content p {
+    color: #555;
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    width: 44px;
+    height: 44px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+  }
+
+  .slider-btn:hover {
+    background: #333;
+  }
+
+  .slider-prev {
+    left: 0;
+  }
+
+  .slider-next {
+    right: 0;
+  }
+
+  .slider-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .slider-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #1a1a1a;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.3s;
+  }
+
+  .slider-dot.active {
+    background: #1a1a1a;
+  }
+
+  @media (max-width: 768px) {
+    .slider-slide.active {
+      grid-template-columns: 1fr;
+    }
+
+    .slide-img {
+      height: 250px;
+    }
+  }
+</style>
+
+<script>
+  // Noticias Slider
+  const slides = document.querySelectorAll('.slider-slide');
+  const dots = document.querySelectorAll('.slider-dot');
+  const prevBtn = document.querySelector('.slider-prev');
+  const nextBtn = document.querySelector('.slider-next');
+  let current = 0;
+  let autoTimer: ReturnType<typeof setInterval>;
+
+  function goTo(index: number) {
+    slides[current]?.classList.remove('active');
+    dots[current]?.classList.remove('active');
+    current = (index + slides.length) % slides.length;
+    slides[current]?.classList.add('active');
+    dots[current]?.classList.add('active');
+  }
+
+  function startAuto() {
+    autoTimer = setInterval(() => goTo(current + 1), 5000);
+  }
+
+  function resetAuto() {
+    clearInterval(autoTimer);
+    startAuto();
+  }
+
+  prevBtn?.addEventListener('click', () => { goTo(current - 1); resetAuto(); });
+  nextBtn?.addEventListener('click', () => { goTo(current + 1); resetAuto(); });
+  dots.forEach((dot, i) => {
+    dot.addEventListener('click', () => { goTo(i); resetAuto(); });
+  });
+
+  startAuto();
+</script>

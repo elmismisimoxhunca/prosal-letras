@@ -1,0 +1,404 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { servicios } from '../../data/servicios';
+
+export function getStaticPaths() {
+  return servicios.map(s => ({ params: { slug: s.slug } }));
+}
+
+const { slug } = Astro.params;
+const servicio = servicios.find(s => s.slug === slug);
+
+if (!servicio) {
+  return Astro.redirect('/servicios');
+}
+---
+
+<Layout title={`${servicio.titulo} — PROSAL`}>
+  <main>
+    <section class="service-hero">
+      <div class="container">
+        <a href="/servicios" class="back-link">← Todos los servicios</a>
+        <span class="service-icon">{servicio.icono}</span>
+        <h1 class="serif">{servicio.titulo}</h1>
+        <div class="divider"></div>
+        <p class="service-resumen">{servicio.resumen}</p>
+      </div>
+    </section>
+
+    <section class="service-detail">
+      <div class="container">
+        <div class="detail-grid">
+          <div class="detail-main">
+            <h2 class="serif">Sobre este servicio</h2>
+            <p class="detail-desc">{servicio.descripcion}</p>
+
+            <h3>¿Qué incluye?</h3>
+            <ul class="detail-list">
+              {servicio.detalles.map((d) => (
+                <li>{d}</li>
+              ))}
+            </ul>
+
+            <h3>¿Para quién es?</h3>
+            <p class="detail-audience">{servicio.para_quien}</p>
+          </div>
+
+          <aside class="detail-sidebar">
+            <div class="contact-box">
+              <h3 class="serif">¿Te interesa este servicio?</h3>
+              <p>Completa el formulario y nos pondremos en contacto contigo a la brevedad.</p>
+              <form class="service-form" action="#" method="POST">
+                <input type="hidden" name="servicio" value={servicio.titulo} />
+                <div class="form-group">
+                  <label for="nombre">Nombre</label>
+                  <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre completo" />
+                </div>
+                <div class="form-group">
+                  <label for="email">Correo electrónico</label>
+                  <input type="email" id="email" name="email" required placeholder="tu@correo.cl" />
+                </div>
+                <div class="form-group">
+                  <label for="telefono">Teléfono (opcional)</label>
+                  <input type="tel" id="telefono" name="telefono" placeholder="+56 9 1234 5678" />
+                </div>
+                <div class="form-group">
+                  <label for="mensaje">Cuéntanos sobre tu proyecto</label>
+                  <textarea id="mensaje" name="mensaje" rows="5" required placeholder="Describe brevemente lo que necesitas..."></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Enviar consulta</button>
+              </form>
+              <div class="contact-alt">
+                <p>También puedes escribirnos directamente:</p>
+                <ul>
+                  <li><a href="mailto:prosal@contacto.cl">prosal@contacto.cl</a></li>
+                  <li><a href="https://instagram.com/prosal.letras" target="_blank" rel="noopener">@prosal.letras</a></li>
+                </ul>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="other-services">
+      <div class="container">
+        <h2 class="section-heading serif">Otros servicios</h2>
+        <div class="heading-line"></div>
+        <div class="other-grid">
+          {servicios.filter(s => s.slug !== slug).map((s) => (
+            <a href={`/servicios/${s.slug}`} class="other-card">
+              <span class="other-icon">{s.icono}</span>
+              <h4>{s.titulo}</h4>
+              <p>{s.resumen}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  /* HERO */
+  .service-hero {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 5rem 0 4rem;
+    text-align: center;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: #999;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2rem;
+    transition: color 0.3s;
+  }
+
+  .back-link:hover {
+    color: #fff;
+    opacity: 1;
+  }
+
+  .service-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .service-hero h1 {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .service-hero .divider {
+    background: #fff;
+    width: 60px;
+    height: 3px;
+    margin: 1rem auto;
+  }
+
+  .service-resumen {
+    font-size: 1.15rem;
+    color: #ccc;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* DETAIL */
+  .service-detail {
+    padding: 4rem 0;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .detail-main h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .detail-desc {
+    font-size: 1.05rem;
+    color: #444;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+  }
+
+  .detail-main h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #1a1a1a;
+  }
+
+  .detail-list {
+    list-style: none;
+    margin-bottom: 2.5rem;
+  }
+
+  .detail-list li {
+    padding: 0.6rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    color: #444;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .detail-list li:last-child {
+    border-bottom: none;
+  }
+
+  .detail-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: #1a1a1a;
+    font-weight: 700;
+  }
+
+  .detail-audience {
+    color: #444;
+    font-size: 0.95rem;
+    line-height: 1.8;
+  }
+
+  /* SIDEBAR / CONTACT FORM */
+  .detail-sidebar {
+    position: sticky;
+    top: 100px;
+  }
+
+  .contact-box {
+    background: #f7f7f7;
+    padding: 2.5rem;
+    border: 1px solid #e5e5e5;
+  }
+
+  .contact-box h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .contact-box > p {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .service-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .form-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #555;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    background: #fff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: border-color 0.3s;
+    outline: none;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: #1a1a1a;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .btn-submit {
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    padding: 0.9rem 2rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .btn-submit:hover {
+    background: #333;
+  }
+
+  .contact-alt {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #ddd;
+  }
+
+  .contact-alt p {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 0.5rem;
+  }
+
+  .contact-alt ul {
+    list-style: none;
+  }
+
+  .contact-alt li {
+    margin-bottom: 0.3rem;
+  }
+
+  .contact-alt a {
+    color: #1a1a1a;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: underline;
+  }
+
+  /* OTHER SERVICES */
+  .other-services {
+    background: #f7f7f7;
+    padding: 4rem 0 5rem;
+  }
+
+  .section-heading {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .heading-line {
+    width: 40px;
+    height: 3px;
+    background: #1a1a1a;
+    margin-bottom: 2.5rem;
+  }
+
+  .other-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .other-card {
+    display: block;
+    padding: 2rem;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .other-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    opacity: 1;
+  }
+
+  .other-icon {
+    font-size: 1.8rem;
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+
+  .other-card h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+  }
+
+  .other-card p {
+    color: #666;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 900px) {
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .detail-sidebar {
+      position: static;
+    }
+
+    .other-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .service-hero h1 {
+      font-size: 2rem;
+    }
+  }
+</style>

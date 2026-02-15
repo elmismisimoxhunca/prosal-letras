@@ -1,0 +1,101 @@
+---
+import { getPosts } from '../lib/ghost';
+import Layout from '../layouts/Layout.astro';
+import PostCard from '../components/PostCard.astro';
+
+const allPosts = await getPosts();
+const columnas = allPosts.filter(p => p.tags?.some(t => t.slug === 'hash-columna'));
+// Fallback: if no tagged columnas, show all posts
+const columnasToShow = columnas.length > 0 ? columnas : allPosts;
+---
+
+<Layout title="Columnas — PROSAL">
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <h1 class="serif">Columnas</h1>
+        <div class="divider"></div>
+        <p class="page-subtitle">Reflexiones, análisis y opiniones sobre el mundo literario y cultural de la Región de Valparaíso.</p>
+      </div>
+    </section>
+
+    <section class="columnas-listing">
+      <div class="container">
+        {columnasToShow.length > 0 ? (
+          <div class="columnas-grid">
+            {columnasToShow.map((post) => (
+              <PostCard post={post} />
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state">
+            <p>Próximamente publicaremos nuestras primeras columnas. ¡Mantente atento!</p>
+          </div>
+        )}
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .page-hero {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 6rem 0 4rem;
+    text-align: center;
+  }
+
+  .page-hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-hero .divider {
+    background: #fff;
+    width: 60px;
+    height: 3px;
+    margin: 1rem auto;
+  }
+
+  .page-subtitle {
+    font-size: 1.1rem;
+    color: #ccc;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .columnas-listing {
+    padding: 4rem 0 6rem;
+  }
+
+  .columnas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: #999;
+    font-size: 1.1rem;
+    padding: 4rem 2rem;
+    border: 2px dashed #e5e5e5;
+  }
+
+  @media (max-width: 900px) {
+    .columnas-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .columnas-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .page-hero h1 {
+      font-size: 2.2rem;
+    }
+  }
+</style>

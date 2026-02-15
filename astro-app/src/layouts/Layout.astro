@@ -1,21 +1,21 @@
 ---
-import { getTags } from '../lib/ghost';
-
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
-const tags = await getTags();
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content="Astro + Ghost CMS Blog" />
+    <meta name="description" content="PROSAL — Proyecto Regional para la Organización Social de Autorías Literarias. Fomentamos la lectura y escritura en la Región de Valparaíso." />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
     <title>{title}</title>
     <style is:global>
       * {
@@ -25,47 +25,102 @@ const tags = await getTags();
       }
 
       html {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-          Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue',
-          sans-serif;
-        background: #f9f9f9;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #ffffff;
+        scroll-behavior: smooth;
       }
 
       body {
-        background: #f9f9f9;
-        color: #333;
+        background: #ffffff;
+        color: #1a1a1a;
+        line-height: 1.6;
       }
 
       a {
-        color: #667eea;
+        color: #1a1a1a;
         text-decoration: none;
+        transition: opacity 0.3s;
       }
 
       a:hover {
-        text-decoration: underline;
+        opacity: 0.7;
+      }
+
+      .serif {
+        font-family: 'Playfair Display', Georgia, serif;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      section {
+        padding: 5rem 0;
+      }
+
+      .section-title {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #1a1a1a;
+      }
+
+      .section-subtitle {
+        font-size: 1.1rem;
+        color: #666;
+        max-width: 600px;
+        line-height: 1.7;
+      }
+
+      .section-header {
+        text-align: center;
+        margin-bottom: 3.5rem;
+      }
+
+      .section-header .section-subtitle {
+        margin: 0.5rem auto 0;
+      }
+
+      .divider {
+        width: 60px;
+        height: 3px;
+        background: #1a1a1a;
+        margin: 1rem auto;
       }
     </style>
   </head>
   <body>
-    <header class="site-header">
+    <!-- Navigation -->
+    <header class="site-header" id="top">
       <nav class="navbar">
-        <div class="nav-container">
+        <div class="nav-container container">
           <a href="/" class="logo">
-            <span class="logo-icon">📝</span>
-            <span class="logo-text">Blog</span>
+            <img src="/images/logo-prosal.svg" alt="PROSAL Letras" class="logo-img" />
           </a>
+          <button class="mobile-toggle" aria-label="Menú">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
           <ul class="nav-menu">
-            <li><a href="/">Home</a></li>
-            <li class="dropdown">
-              <button class="dropdown-toggle">Categories</button>
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/#sobre-prosal">Sobre Prosal</a></li>
+            <li><a href="/columnas">Columnas</a></li>
+            <li><a href="/revista">Revista</a></li>
+            <li class="has-dropdown">
+              <a href="/servicios">Servicios <span class="dropdown-arrow">▾</span></a>
               <ul class="dropdown-menu">
-                {tags.slice(0, 5).map((tag) => (
-                  <li>
-                    <a href={`/categories/${tag.slug}`}>{tag.name}</a>
-                  </li>
-                ))}
+                <li><a href="/servicios/conversatorios-literarios">Conversatorios literarios</a></li>
+                <li><a href="/servicios/talleres-escritura">Talleres de escritura</a></li>
+                <li><a href="/servicios/lanzamientos-libros">Lanzamientos de libros</a></li>
+                <li><a href="/servicios/orientacion-acompanamiento">Orientación y acompañamiento</a></li>
               </ul>
             </li>
+            <li><a href="/eventos">Eventos</a></li>
+            <li><a href="/#contacto">Contacto</a></li>
           </ul>
         </div>
       </nav>
@@ -73,105 +128,147 @@ const tags = await getTags();
 
     <slot />
 
+    <!-- Footer -->
     <footer class="site-footer">
-      <div class="footer-content">
-        <p>&copy; 2024 Astro + Ghost CMS. All rights reserved.</p>
-        <p class="footer-note">
-          Powered by <a href="https://ghost.org" target="_blank">Ghost</a> and
-          <a href="https://astro.build" target="_blank">Astro</a>
-        </p>
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-col footer-brand">
+            <h3 class="footer-logo">PROSAL</h3>
+            <p class="footer-full-name">Proyecto Regional para la Organización Social de Autorías Literarias</p>
+            <p class="footer-hashtags">#PROSAL / #ProsalLetras</p>
+          </div>
+          <div class="footer-col">
+            <h4>Quiénes somos</h4>
+            <p>Somos una iniciativa de la Región de Valparaíso que busca fomentar la Lectura y la Escritura como elementos fundamentales de la cultura chilena desde una perspectiva situada y territorial.</p>
+          </div>
+          <div class="footer-col">
+            <h4>¿Preguntas? ¡Contáctanos!</h4>
+            <ul class="footer-contact">
+              <li>
+                <span class="contact-icon">✉</span>
+                <a href="mailto:prosal@contacto.cl">prosal@contacto.cl</a>
+              </li>
+              <li>
+                <span class="contact-icon">📷</span>
+                <a href="https://instagram.com/prosal.letras" target="_blank" rel="noopener">@prosal.letras</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>Todos los derechos reservados &copy; {new Date().getFullYear()} PROSAL</p>
+        </div>
       </div>
     </footer>
 
     <style>
+      /* Header */
       .site-header {
-        background: white;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background: #ffffff;
         position: sticky;
         top: 0;
-        z-index: 100;
+        z-index: 1000;
+        border-bottom: 1px solid #e5e5e5;
       }
 
       .navbar {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 2rem;
+        width: 100%;
       }
 
       .nav-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        height: 70px;
+        height: 72px;
       }
 
       .logo {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #333;
         text-decoration: none;
       }
 
-      .logo-icon {
-        font-size: 1.8rem;
+      .logo:hover {
+        opacity: 1;
       }
 
-      .logo-text {
-        color: #667eea;
+      .logo-img {
+        height: 40px;
+        width: auto;
       }
 
       .nav-menu {
         display: flex;
         list-style: none;
-        gap: 2rem;
+        gap: 1.8rem;
       }
 
       .nav-menu a {
-        color: #333;
+        color: #1a1a1a;
         text-decoration: none;
         font-weight: 500;
-        transition: color 0.3s;
+        font-size: 0.9rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        position: relative;
+        padding-bottom: 4px;
+      }
+
+      .nav-menu a::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #1a1a1a;
+        transition: width 0.3s;
       }
 
       .nav-menu a:hover {
-        color: #667eea;
+        opacity: 1;
       }
 
-      .dropdown {
+      .nav-menu a:hover::after {
+        width: 100%;
+      }
+
+      /* Dropdown */
+      .has-dropdown {
         position: relative;
       }
 
-      .dropdown-toggle {
-        background: none;
-        border: none;
-        color: #333;
-        font-weight: 500;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: color 0.3s;
-      }
-
-      .dropdown-toggle:hover {
-        color: #667eea;
+      .dropdown-arrow {
+        font-size: 0.7em;
+        margin-left: 0.15em;
       }
 
       .dropdown-menu {
         display: none;
         position: absolute;
         top: 100%;
-        left: 0;
-        background: white;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #fff;
         list-style: none;
-        border-radius: 4px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        min-width: 200px;
-        margin-top: 0.5rem;
+        min-width: 260px;
+        padding: 0.75rem 0;
+        border: 1px solid #e5e5e5;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        z-index: 100;
+        margin-top: 12px;
       }
 
-      .dropdown:hover .dropdown-menu {
+      .dropdown-menu::before {
+        content: '';
+        position: absolute;
+        top: -12px;
+        left: 0;
+        right: 0;
+        height: 12px;
+      }
+
+      .has-dropdown:hover .dropdown-menu {
         display: block;
       }
 
@@ -181,42 +278,208 @@ const tags = await getTags();
 
       .dropdown-menu a {
         display: block;
-        padding: 0.8rem 1.5rem;
-        color: #333;
-        text-decoration: none;
-        transition: background 0.3s;
+        padding: 0.6rem 1.25rem;
+        font-size: 0.82rem;
+        font-weight: 500;
+        text-transform: none;
+        letter-spacing: 0;
+        white-space: nowrap;
+      }
+
+      .dropdown-menu a::after {
+        display: none;
       }
 
       .dropdown-menu a:hover {
-        background: #f0f0f0;
-        color: #667eea;
+        background: #f7f7f7;
+        opacity: 1;
       }
 
+      .mobile-toggle {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+      }
+
+      .mobile-toggle span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: #1a1a1a;
+        transition: 0.3s;
+      }
+
+      /* Footer */
       .site-footer {
-        background: #333;
-        color: white;
-        text-align: center;
-        padding: 2rem;
-        margin-top: 4rem;
+        background: #1a1a1a;
+        color: #ffffff;
+        padding: 4rem 0 0;
+        margin-top: 0;
       }
 
-      .footer-content {
-        max-width: 1200px;
-        margin: 0 auto;
+      .footer-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr 1fr;
+        gap: 3rem;
+        padding-bottom: 3rem;
+        border-bottom: 1px solid #333;
       }
 
-      .footer-content p {
-        margin: 0.5rem 0;
+      .footer-logo {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
       }
 
-      .footer-note {
+      .footer-full-name {
+        font-size: 0.85rem;
+        color: #aaa;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      .footer-hashtags {
+        font-size: 0.85rem;
+        color: #888;
+        font-weight: 500;
+      }
+
+      .footer-col h4 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+      }
+
+      .footer-col p {
         font-size: 0.9rem;
-        opacity: 0.8;
+        color: #aaa;
+        line-height: 1.7;
       }
 
-      .footer-note a {
-        color: #667eea;
+      .footer-contact {
+        list-style: none;
+      }
+
+      .footer-contact li {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 0.8rem;
+      }
+
+      .footer-contact a {
+        color: #ccc;
+        font-size: 0.9rem;
+        transition: color 0.3s;
+      }
+
+      .footer-contact a:hover {
+        color: #fff;
+        opacity: 1;
+      }
+
+      .contact-icon {
+        font-size: 1rem;
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding: 1.5rem 0;
+        font-size: 0.8rem;
+        color: #666;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .mobile-toggle {
+          display: flex;
+        }
+
+        .nav-menu {
+          display: none;
+          position: absolute;
+          top: 72px;
+          left: 0;
+          right: 0;
+          background: #fff;
+          flex-direction: column;
+          padding: 1.5rem 2rem;
+          gap: 1rem;
+          border-bottom: 1px solid #e5e5e5;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .nav-menu.active {
+          display: flex;
+        }
+
+        .has-dropdown:hover .dropdown-menu {
+          display: none;
+        }
+
+        .has-dropdown .dropdown-menu.active {
+          display: block;
+          position: static;
+          transform: none;
+          border: none;
+          box-shadow: none;
+          margin-top: 0;
+          padding: 0.25rem 0 0.25rem 1rem;
+          min-width: auto;
+        }
+
+        .dropdown-menu.active a {
+          padding: 0.4rem 0;
+          font-size: 0.85rem;
+          color: #666;
+        }
+
+        .footer-grid {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+        }
       }
     </style>
+
+    <script>
+      const toggle = document.querySelector('.mobile-toggle');
+      const menu = document.querySelector('.nav-menu');
+      if (toggle && menu) {
+        toggle.addEventListener('click', () => {
+          menu.classList.toggle('active');
+        });
+        menu.querySelectorAll(':scope > li > a').forEach(link => {
+          link.addEventListener('click', () => {
+            if (!link.closest('.has-dropdown') || window.innerWidth > 768) {
+              menu.classList.remove('active');
+            }
+          });
+        });
+        menu.querySelectorAll('.dropdown-menu a').forEach(link => {
+          link.addEventListener('click', () => {
+            menu.classList.remove('active');
+          });
+        });
+      }
+      // Mobile: toggle dropdown on click
+      const dropdownParent = document.querySelector('.has-dropdown > a');
+      if (dropdownParent) {
+        dropdownParent.addEventListener('click', (e) => {
+          if (window.innerWidth <= 768) {
+            e.preventDefault();
+            const dd = dropdownParent.nextElementSibling;
+            if (dd) dd.classList.toggle('active');
+          }
+        });
+      }
+    </script>
   </body>
 </html>

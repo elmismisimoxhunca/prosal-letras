@@ -1,0 +1,135 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { servicios } from '../../data/servicios';
+---
+
+<Layout title="Servicios — PROSAL">
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <h1 class="serif">¿Qué puede hacer Prosal por ti?</h1>
+        <div class="divider"></div>
+        <p class="page-subtitle">Acompañamos a autores y comunidades en su camino literario con servicios profesionales y situados en la Región de Valparaíso.</p>
+      </div>
+    </section>
+
+    <section class="servicios-listing">
+      <div class="container">
+        <div class="servicios-grid">
+          {servicios.map((s) => (
+            <a href={`/servicios/${s.slug}`} class="servicio-card-link">
+              <div class="servicio-card">
+                <span class="servicio-icon">{s.icono}</span>
+                <h3>{s.titulo}</h3>
+                <p>{s.resumen}</p>
+                <span class="servicio-cta">Más información →</span>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .page-hero {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 6rem 0 4rem;
+    text-align: center;
+  }
+
+  .page-hero h1 {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-hero .divider {
+    background: #fff;
+    width: 60px;
+    height: 3px;
+    margin: 1rem auto;
+  }
+
+  .page-subtitle {
+    font-size: 1.1rem;
+    color: #ccc;
+    max-width: 650px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .servicios-listing {
+    padding: 4rem 0 6rem;
+  }
+
+  .servicios-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  .servicio-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .servicio-card-link:hover {
+    opacity: 1;
+  }
+
+  .servicio-card {
+    padding: 2.5rem;
+    border: 1px solid #e5e5e5;
+    height: 100%;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .servicio-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+
+  .servicio-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .servicio-card h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #1a1a1a;
+  }
+
+  .servicio-card p {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    flex: 1;
+  }
+
+  .servicio-cta {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #1a1a1a;
+  }
+
+  @media (max-width: 768px) {
+    .servicios-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .page-hero h1 {
+      font-size: 2rem;
+    }
+  }
+</style>

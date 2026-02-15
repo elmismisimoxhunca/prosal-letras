@@ -1,0 +1,423 @@
+---
+import { getPosts } from '../lib/ghost';
+import Layout from '../layouts/Layout.astro';
+
+const allPosts = await getPosts();
+const eventos = allPosts.filter(p => p.tags?.some(t => t.slug === 'hash-evento'));
+
+const now = new Date();
+const futureEventsGhost = eventos
+  .filter(ev => new Date(ev.published_at) >= now)
+  .sort((a, b) => new Date(a.published_at).getTime() - new Date(b.published_at).getTime());
+
+const pastEventsGhost = eventos
+  .filter(ev => new Date(ev.published_at) < now)
+  .sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
+
+// Fallback upcoming events from PROXIMAMENTE.docx
+const proximosFallback = [
+  {
+    titulo: "El Jardín de las Letras — Palacio Rioja",
+    fecha: "28 de febrero, 2026",
+    lugar: "Palacio Rioja, Viña del Mar",
+    descripcion: "Regresamos a uno de nuestros espacios más queridos. Tras el entusiasmo y la gran convocatoria de nuestra última jornada, PROSAL volverá al Palacio Rioja con una nueva edición de este encuentro literario: más autoras y autores, más jardines habitados por libros y más espacios para el encuentro entre lectores, creadoras y comunidad.",
+    imagen: "/images/eventos/proximamente-1.png",
+    estado: "Programación próximamente"
+  },
+  {
+    titulo: "Fantasía en Villa Alemana",
+    fecha: "Fecha por confirmar",
+    lugar: "Villa Alemana",
+    descripcion: "Un 2026 que comienza entre mundos imaginados. Luego de nuestra colaboración con la Biblioteca Pública Municipal Paul Harris de Villa Alemana, preparamos una jornada especial dedicada a la fantasía, la imaginación y las narrativas gráficas. Libros, cómics, autorías invitadas y actividades pensadas para distintos públicos.",
+    imagen: "/images/eventos/proximamente-2.png",
+    estado: "Fecha por confirmar"
+  },
+  {
+    titulo: "Escuela de Verano PROSAL",
+    fecha: "Inscripciones abiertas",
+    lugar: "Región de Valparaíso",
+    descripcion: "Un espacio de formación, reflexión y escritura colectiva dirigido a mujeres y disidencias. A través de la lectura, la conversación y la creación, durante cuatro sesiones semanales, esta instancia busca fortalecer la escritura y el pensamiento crítico desde una mirada comunitaria.",
+    imagen: "",
+    estado: "Inscripciones abiertas"
+  },
+  {
+    titulo: "Antología PROSAL — Derechos Humanos",
+    fecha: "Fecha de lanzamiento por confirmar",
+    lugar: "Región de Valparaíso",
+    descripcion: "Actualmente nos encontramos trabajando en una antología conmemorativa en el marco del Día Internacional de los Derechos Humanos. Este proyecto reunirá diversas voces en torno a la memoria, la dignidad y la justicia. Un hito editorial que marcará el cierre de nuestro 2025, y el inicio de este 2026.",
+    imagen: "",
+    estado: "En preparación"
+  }
+];
+
+// Fallback past events from NOTICIAS
+const pasadosFallback = [
+  {
+    titulo: "\"El Jardín de las Letras\" — Palacio Rioja",
+    descripcion: "PROSAL inauguró un ciclo de conversatorios literarios en el Palacio Rioja de Viña del Mar, reuniendo a autorías locales y comunidad lectora en un espacio patrimonial.",
+    imagen: "/images/noticias/noticia-1-1.jpg"
+  },
+  {
+    titulo: "Conversatorio en Biblioteca Paul Harris, Villa Alemana",
+    descripcion: "Un encuentro dedicado a la fantasía, la imaginación y las narrativas gráficas en colaboración con la Biblioteca Pública Municipal.",
+    imagen: "/images/noticias/noticia-2-1.jpg"
+  },
+  {
+    titulo: "\"Poesía y Política\": Reflexiones desde la palabra poética",
+    descripcion: "Un conversatorio que exploró los vínculos entre poesía y política, reafirmando la palabra poética como espacio de pensamiento crítico.",
+    imagen: "/images/noticias/noticia-3-1.jpg"
+  },
+  {
+    titulo: "\"Narrativas con Orgullo\" — Mes del Orgullo",
+    descripcion: "En colaboración con Leon's Books, PROSAL reunió a autorías chilenas para reflexionar sobre la diversidad sexual y de género en la literatura.",
+    imagen: "/images/noticias/noticia-4-1.jpg"
+  },
+  {
+    titulo: "\"Líricas Patrimoniales\" — Biblioteca Santiago Severín",
+    descripcion: "Destacadas voces de la poesía regional se reunieron en la Biblioteca Pública de Valparaíso para un encuentro marcado por la reflexión y la emoción.",
+    imagen: "/images/noticias/noticia-5-1.jpg"
+  },
+  {
+    titulo: "Día de la Niñez — Jornada literaria familiar",
+    descripcion: "Familias completas participaron de una experiencia cultural pensada para acompañar el crecimiento lector desde la primera infancia.",
+    imagen: "/images/noticias/noticia-6-1.jpg"
+  }
+];
+
+const futureEvents = futureEventsGhost;
+const pastEvents = pastEventsGhost;
+const showProximosFallback = futureEvents.length === 0;
+const showPasadosFallback = pastEvents.length === 0;
+---
+
+<Layout title="Eventos — PROSAL">
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <h1 class="serif">Eventos</h1>
+        <div class="divider"></div>
+        <p class="page-subtitle">Actividades culturales y literarias de PROSAL en la Región de Valparaíso.</p>
+      </div>
+    </section>
+
+    <!-- PRÓXIMOS EVENTOS -->
+    <section class="eventos-section">
+      <div class="container">
+        <h2 class="section-heading serif">Próximos Eventos</h2>
+        <div class="heading-line"></div>
+
+        {futureEvents.length > 0 ? (
+          <div class="eventos-list">
+            {futureEvents.map((ev) => (
+              <article class="evento-card">
+                <div class="evento-date-block">
+                  <span class="evento-day">{new Date(ev.published_at).getDate()}</span>
+                  <span class="evento-month">{new Date(ev.published_at).toLocaleDateString('es-CL', { month: 'short' }).toUpperCase()}</span>
+                  <span class="evento-year">{new Date(ev.published_at).getFullYear()}</span>
+                </div>
+                <div class="evento-body">
+                  <h3><a href={`/blog/${ev.slug}`}>{ev.title}</a></h3>
+                  <p class="evento-excerpt">{ev.excerpt}</p>
+                  {ev.authors && ev.authors.length > 0 && (
+                    <span class="evento-author">Organiza: {ev.authors[0].name}</span>
+                  )}
+                </div>
+                {ev.feature_image && (
+                  <div class="evento-image">
+                    <img src={ev.feature_image} alt={ev.title} loading="lazy" />
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="eventos-list">
+            {proximosFallback.map((ev) => (
+              <article class="evento-card">
+                <div class="evento-date-block evento-date-tbd">
+                  <span class="evento-estado">{ev.estado}</span>
+                </div>
+                <div class="evento-body">
+                  <h3>{ev.titulo}</h3>
+                  <p class="evento-lugar">{ev.lugar}</p>
+                  <p class="evento-excerpt">{ev.descripcion}</p>
+                </div>
+                {ev.imagen && (
+                  <div class="evento-image">
+                    <img src={ev.imagen} alt={ev.titulo} loading="lazy" />
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+
+    <!-- EVENTOS PASADOS -->
+    <section class="eventos-section eventos-past">
+      <div class="container">
+        <h2 class="section-heading serif">Eventos Pasados</h2>
+        <div class="heading-line"></div>
+
+        {pastEvents.length > 0 ? (
+          <div class="eventos-list">
+            {pastEvents.map((ev) => (
+              <article class="evento-card evento-card-past">
+                <div class="evento-date-block">
+                  <span class="evento-day">{new Date(ev.published_at).getDate()}</span>
+                  <span class="evento-month">{new Date(ev.published_at).toLocaleDateString('es-CL', { month: 'short' }).toUpperCase()}</span>
+                  <span class="evento-year">{new Date(ev.published_at).getFullYear()}</span>
+                </div>
+                <div class="evento-body">
+                  <h3><a href={`/blog/${ev.slug}`}>{ev.title}</a></h3>
+                  <p class="evento-excerpt">{ev.excerpt}</p>
+                  {ev.authors && ev.authors.length > 0 && (
+                    <span class="evento-author">Organizó: {ev.authors[0].name}</span>
+                  )}
+                </div>
+                {ev.feature_image && (
+                  <div class="evento-image">
+                    <img src={ev.feature_image} alt={ev.title} loading="lazy" />
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="eventos-list">
+            {pasadosFallback.map((ev) => (
+              <article class="evento-card evento-card-past">
+                <div class="evento-body">
+                  <h3>{ev.titulo}</h3>
+                  <p class="evento-excerpt">{ev.descripcion}</p>
+                </div>
+                {ev.imagen && (
+                  <div class="evento-image">
+                    <img src={ev.imagen} alt={ev.titulo} loading="lazy" />
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .page-hero {
+    background: #1a1a1a;
+    color: #fff;
+    padding: 6rem 0 4rem;
+    text-align: center;
+  }
+
+  .page-hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-hero .divider {
+    background: #fff;
+    width: 60px;
+    height: 3px;
+    margin: 1rem auto;
+  }
+
+  .page-subtitle {
+    font-size: 1.1rem;
+    color: #ccc;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .eventos-section {
+    padding: 4rem 0;
+  }
+
+  .eventos-past {
+    background: #f7f7f7;
+    padding-bottom: 6rem;
+  }
+
+  .section-heading {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .heading-line {
+    width: 40px;
+    height: 3px;
+    background: #1a1a1a;
+    margin-bottom: 2.5rem;
+  }
+
+  .eventos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .evento-card {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    align-items: flex-start;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .evento-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  }
+
+  .evento-card-past {
+    opacity: 0.75;
+  }
+
+  .evento-card-past:hover {
+    opacity: 1;
+  }
+
+  .evento-date-block {
+    min-width: 90px;
+    text-align: center;
+    padding: 1rem 0.75rem;
+    background: #1a1a1a;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex-shrink: 0;
+  }
+
+  .evento-day {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .evento-month {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+  }
+
+  .evento-year {
+    font-size: 0.75rem;
+    color: #999;
+  }
+
+  .evento-body {
+    flex: 1;
+  }
+
+  .evento-body h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+
+  .evento-body h3 a {
+    color: #1a1a1a;
+    text-decoration: none;
+    transition: opacity 0.3s;
+  }
+
+  .evento-body h3 a:hover {
+    opacity: 0.7;
+  }
+
+  .evento-excerpt {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+  }
+
+  .evento-author {
+    font-size: 0.8rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .evento-date-tbd {
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .evento-estado {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .evento-lugar {
+    font-size: 0.8rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.5rem;
+  }
+
+  .evento-image {
+    width: 180px;
+    height: 120px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid #e5e5e5;
+  }
+
+  .evento-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: #999;
+    font-size: 1.05rem;
+    padding: 4rem 2rem;
+    border: 2px dashed #e5e5e5;
+    line-height: 1.8;
+  }
+
+  .empty-state a {
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .evento-card {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .evento-date-block {
+      flex-direction: row;
+      gap: 0.5rem;
+      align-items: baseline;
+      min-width: auto;
+      padding: 0.75rem 1rem;
+    }
+
+    .evento-image {
+      width: 100%;
+      height: 200px;
+    }
+
+    .page-hero h1 {
+      font-size: 2.2rem;
+    }
+  }
+</style>

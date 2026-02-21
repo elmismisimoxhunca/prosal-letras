@@ -16,12 +16,6 @@ services:
       mail__transport: Direct
     volumes:
       - ghost_content:/var/lib/ghost/content
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.ghost.rule=Host(`prosal-letras.com`) && PathPrefix(`/ghost`)"
-      - "traefik.http.routers.ghost.entrypoints=websecure"
-      - "traefik.http.routers.ghost.tls.certresolver=letsencrypt"
-      - "traefik.http.services.ghost.loadbalancer.server.port=3000"
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:2368/ghost/api/v3/admin/site/"]
       interval: 30s

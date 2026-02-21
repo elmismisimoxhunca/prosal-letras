@@ -1,4 +1,4 @@
-FROM ghost:5-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 

@@ -9,3 +9,9 @@ services:
     environment:
       GHOST_URL: ${GHOST_URL}
       GHOST_CONTENT_API_KEY: ${GHOST_CONTENT_API_KEY}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.astro.rule=Host(`prosal-letras.com`)"
+      - "traefik.http.routers.astro.entrypoints=websecure"
+      - "traefik.http.routers.astro.tls.certresolver=letsencrypt"
+      - "traefik.http.services.astro.loadbalancer.server.port=4321"
